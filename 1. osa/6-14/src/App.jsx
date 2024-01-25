@@ -44,6 +44,7 @@ const Statistics = ({good, neutral, bad}) => {
 
 const App = () => {
   const [selected, setSelected] = useState(0)
+  const [hasClicked, setHasClicked] = useState(false)
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
@@ -59,10 +60,20 @@ const App = () => {
     'The only way to go fast, is to go well.'
   ]
 
+  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
+
   const selectRandomAnecdote = () => {
-    const randomIndex = Math.floor(Math.random() * anecdotes.length());
+    const randomIndex = Math.floor(Math.random() * anecdotes.length);
     setSelected(randomIndex);
   }
+
+  const anecdoteVote = () => {
+    const newVotes = [...votes];
+    newVotes[selected] += 1;
+    setVotes(newVotes);
+  }
+
+  const mostVotes = votes.indexOf(Math.max(...votes));
 
   return (
     <div>
@@ -71,7 +82,32 @@ const App = () => {
       <FeedbackButton handleClick={() => setNeutral(neutral + 1)} text="neutral" />
       <FeedbackButton handleClick={() => setBad(bad + 1)} text="bad" />
       <Statistics good={good} neutral={neutral} bad={bad} /><br/>
-      <FeedbackButton handleClick={() => selectRandomAnecdote} text="anecdote"/>
+
+      <button onClick={() => {
+          setHasClicked(true);
+          selectRandomAnecdote();
+          }}>
+          {hasClicked ? "next anecdote" : "anecdote"}
+      </button>
+
+      {hasClicked && (
+      <>
+        <h2>Anecdote of the day</h2>
+          <p>{anecdotes[selected]}</p>
+          <p>has {votes[selected]} votes</p>
+        <button onClick={anecdoteVote}>
+          vote
+        </button>
+
+        <h2>Anecdote with most votes</h2>
+          {Math.max(...votes) > 0 && (
+          <>
+            <p>{anecdotes[mostVotes]}</p>
+            <p>has {votes[mostVotes]} votes</p>
+          </>
+          )}
+      </>
+      )}
     </div>
   )
 }
